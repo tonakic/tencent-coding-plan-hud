@@ -131,86 +131,22 @@ tencent-coding-plan-hud/
 
 ## 🚀 安装与使用
 
-### 方法一：本地 Marketplace 安装（推荐）
+### 一键安装
 
-**步骤 1：克隆仓库到本地**
-
-```bash
-# 克隆到你的项目目录或任意位置
-git clone https://github.com/tonakic/tencent-coding-plan-hud.git
-cd tencent-coding-plan-hud
-
-# 安装依赖并构建
-npm install
-npm run build
-```
-
-**步骤 2：创建本地 Marketplace**
-
-在你的项目目录创建 `.claude-plugin/marketplace.json`：
-
-```bash
-mkdir -p .claude-plugin
-cat > .claude-plugin/marketplace.json << 'EOF'
-{
-  "name": "local-plugins",
-  "owner": {
-    "name": "Local",
-    "email": "local@localhost"
-  },
-  "plugins": [
-    {
-      "name": "tencent-coding-plan-hud",
-      "description": "腾讯云 CodingPlan 用量监控插件",
-      "source": "./tencent-coding-plan-hud",
-      "category": "monitoring",
-      "homepage": "https://github.com/tonakic/tencent-coding-plan-hud"
-    }
-  ]
-}
-EOF
-```
-
-> 📁 目录结构应为：
-> ```
-> your-project/
-> ├── .claude-plugin/
-> │   └── marketplace.json
-> └── tencent-coding-plan-hud/
->     ├── .claude-plugin/
->     │   └── plugin.json
->     └── ...
-> ```
-
-**步骤 3：添加并安装插件**
-
-在 Claude Code 中运行：
+在 Claude Code 中运行以下命令：
 
 ```
-/plugin marketplace add /path/to/your-project
-/plugin marketplace update local-plugins
+/plugin marketplace add https://github.com/tonakic/tencent-coding-plan-hud
 /plugin install tencent-coding-plan-hud
 ```
 
-或者使用 `--plugin-dir` 临时加载：
+安装完成后，运行 `/reload-plugins` 或重启 Claude Code 即可使用。
 
-```
-claude --plugin-dir /path/to/tencent-coding-plan-hud
-```
-
-### 方法二：使用 --plugin-dir 参数
-
-如果只想在当前会话使用，可以直接用 `--plugin-dir` 参数启动：
-
-```bash
-# 先克隆并构建
-git clone https://github.com/tonakic/tencent-coding-plan-hud.git
-cd tencent-coding-plan-hud
-npm install && npm run build
-
-# 使用插件启动 Claude Code
-claude --plugin-dir .
-```
+> ⚠️ **首次安装后需要构建**：由于本插件使用 TypeScript，首次安装后需要手动构建：
+> ```bash
+> cd ~/.claude/plugins/tencent-coding-plan-hud
+> npm install && npm run build
+> ```
 
 ### 验证安装
 
