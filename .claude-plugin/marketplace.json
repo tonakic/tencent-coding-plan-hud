@@ -16,7 +16,7 @@
         "type": "git",
         "url": "https://github.com/tonakic/tencent-coding-plan-hud"
       },
-      "entrypoint": "skills/setup/skill.md",
+      "entrypoint": "skills/setup/SKILL.md",
       "keywords": ["tencent", "codingplan", "hud", "usage", "monitor", "tokens"]
     }
   ]
