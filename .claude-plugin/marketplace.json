@@ -11,11 +11,12 @@
       "name": "tencent-coding-plan-hud",
       "description": "腾讯云 CodingPlan 用量监控插件 - 在 Claude Code 中显示 Token 用量信息，支持多种 UI 布局和定时刷新",
       "version": "1.0.0",
-      "author": "tonakic",
-      "repository": {
-        "type": "git",
-        "url": "https://github.com/tonakic/tencent-coding-plan-hud"
+      "author": {
+        "name": "tonakic",
+        "email": ""
       },
+      "repository": "https://github.com/tonakic/tencent-coding-plan-hud",
+      "source": "https://github.com/tonakic/tencent-coding-plan-hud/archive/refs/heads/main.zip",
       "entrypoint": "skills/setup/SKILL.md",
       "keywords": ["tencent", "codingplan", "hud", "usage", "monitor", "tokens"]
     }
