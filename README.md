@@ -158,6 +158,19 @@ tencent-coding-plan-hud/
 
 应看到 `tencent-coding-plan-hud` 出现在已安装列表中。
 
+### 卸载
+
+卸载插件会自动清理所有配置：
+
+```
+/plugin uninstall tencent-coding-plan-hud
+```
+
+卸载时自动清理：
+- `~/.claude/tencent-coding-plan-hud/` - 配置文件和缓存
+- `~/.claude/settings.json` 中的 statusLine 配置
+- `~/.claude/settings.json` 中的 marketplace 条目
+
 ---
 
 ## 📝 使用说明
