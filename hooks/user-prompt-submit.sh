@@ -26,7 +26,7 @@ fi
 CACHE_VALID=false
 if [[ -f "$CACHE_FILE" ]]; then
     CACHE_AGE=$(( $(date +%s) - $(stat -c %Y "$CACHE_FILE" 2>/dev/null || echo 0) ))
-    CACHE_INTERVAL=$(echo "$REFRESH_INTERVAL * 60" | bc | cut -d. -f1)
+    CACHE_INTERVAL=$(awk "BEGIN {print int($REFRESH_INTERVAL * 60)}" 2>/dev/null || echo "120")
     if [[ "$CACHE_AGE" -lt "${CACHE_INTERVAL:-120}" ]]; then
         CACHE_VALID=true
     fi
