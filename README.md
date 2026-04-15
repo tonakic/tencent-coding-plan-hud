@@ -34,6 +34,7 @@
 | 🎨 **多种 UI 布局** | 支持展开/堆叠、简洁/详细 4 种显示布局 |
 | 🔄 **智能缓存刷新** | 可配置刷新频率（30秒 ~ 10分钟），数据缓存优化 API 调用 |
 | 🚀 **会话自动显示** | 通过 SessionStart Hook 在新会话自动展示用量信息 |
+| 💬 **持续状态栏显示** | 通过 Statusline 功能在输入框下方持续显示用量信息 |
 | 🔐 **安全密钥存储** | API 密钥本地加密存储，权限严格限制 |
 | 🛠️ **MCP 工具集成** | 提供多个 MCP 工具供 Claude Code 调用 |
 | 📝 **Slash 命令** | 支持 `/setup`、`/query`、`/configure` 快捷命令 |
@@ -86,10 +87,12 @@ tencent-coding-plan-hud/
 │   ├── api.ts               # 腾讯云 API 调用（TC3签名）
 │   ├── hud.ts               # HUD 显示逻辑
 │   ├── config.ts            # 配置管理
-│   └── query-usage.ts       # 命令行查询脚本
+│   ├── query-usage.ts       # 命令行查询脚本
+│   └── statusline.ts        # Statusline 持续显示脚本
 ├── hooks/
 │   ├── hooks.json           # Hook 配置
-│   └── session-start.sh     # SessionStart Hook 脚本
+│   ├── session-start.sh     # SessionStart Hook 脚本
+│   └── user-prompt-submit.sh # UserPromptSubmit Hook 脚本
 ├── skills/
 │   ├── setup/SKILL.md       # /setup 配置命令
 │   ├── configure/SKILL.md   # /configure 设置命令

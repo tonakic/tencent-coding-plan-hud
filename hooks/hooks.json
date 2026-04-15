@@ -10,6 +10,18 @@
           }
         ]
       }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/user-prompt-submit.sh",
+            "async": false,
+            "timeout": 5000
+          }
+        ]
+      }
     ]
   }
 }

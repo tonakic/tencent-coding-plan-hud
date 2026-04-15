@@ -12,7 +12,8 @@
     "build": "tsc",
     "start": "node dist/index.js",
     "dev": "tsc --watch",
-    "query": "node dist/query-usage.js"
+    "query": "node dist/query-usage.js",
+    "statusline": "node dist/statusline.js"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.0"
