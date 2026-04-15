@@ -6,7 +6,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Node.js](https://img.shields.io/badge/Node.js-18%2B-green.svg)](https://nodejs.org/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue.svg)](https://www.typesltdlang.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue.svg)](https://www.typescriptlang.org/)
 
 </div>
 
@@ -131,40 +131,15 @@ tencent-coding-plan-hud/
 
 ## 🚀 安装与使用
 
-### 方式一：本地安装
+### 一键安装
 
-```bash
-# 1. 克隆仓库
-git clone https://github.com/你的用户名/tencent-coding-plan-hud.git
-cd tencent-coding-plan-hud
+在 Claude Code 中运行以下命令：
 
-# 2. 安装依赖
-npm install
-
-# 3. 构建
-npm run build
-
-# 4. 创建本地 marketplace（可选）
-# 在项目父目录创建 .claude-plugin/marketplace.json
+```
+/plugin install https://github.com/tonakic/tencent-coding-plan-hud
 ```
 
-然后在 Claude Code 中：
-
-```bash
-# 添加本地 marketplace
-/claude plugins marketplace add /path/to/parent/directory
-
-# 安装插件
-/claude plugins install tencent-coding-plan-hud@local-plugins
-```
-
-### 方式二：直接安装
-
-如果已在 Claude Code 中配置了该仓库的 marketplace：
-
-```bash
-/plugin install tencent-coding-plan-hud
-```
+安装完成后，运行 `/reload-plugins` 或重启 Claude Code 即可使用。
 
 ---
 
@@ -338,6 +313,10 @@ npm run build
 ## 🧪 开发
 
 ```bash
+# 克隆仓库
+git clone https://github.com/tonakic/tencent-coding-plan-hud.git
+cd tencent-coding-plan-hud
+
 # 安装依赖
 npm install
 
