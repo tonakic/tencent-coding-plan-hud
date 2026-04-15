@@ -15,10 +15,11 @@
         "name": "tonakic",
         "email": ""
       },
-      "repository": "https://github.com/tonakic/tencent-coding-plan-hud",
-      "source": "https://github.com/tonakic/tencent-coding-plan-hud/archive/refs/heads/main.zip",
-      "entrypoint": "skills/setup/SKILL.md",
-      "keywords": ["tencent", "codingplan", "hud", "usage", "monitor", "tokens"]
+      "source": {
+        "source": "url",
+        "url": "https://github.com/tonakic/tencent-coding-plan-hud.git"
+      },
+      "homepage": "https://github.com/tonakic/tencent-coding-plan-hud"
     }
   ]
 }
