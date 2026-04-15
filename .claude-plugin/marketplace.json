@@ -1,0 +1,16 @@
+{
+  "name": "tencent-coding-plan-hud",
+  "owner": {
+    "name": "tonakic",
+    "email": ""
+  },
+  "plugins": [
+    {
+      "name": "tencent-coding-plan-hud",
+      "description": "腾讯云 CodingPlan 用量监控插件 - 在 Claude Code 中显示 Token 用量信息，支持多种 UI 布局和定时刷新",
+      "source": "./",
+      "category": "monitoring",
+      "homepage": "https://github.com/tonakic/tencent-coding-plan-hud"
+    }
+  ]
+}
