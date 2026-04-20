@@ -1,6 +1,6 @@
 {
   "name": "tencent-coding-plan-hud",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "腾讯云 CodingPlan 用量监控 MCP 插件",
   "type": "module",
   "main": "dist/index.js",
