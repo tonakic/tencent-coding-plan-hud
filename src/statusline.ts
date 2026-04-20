@@ -12,25 +12,73 @@ import { loadConfig, getHUDConfig } from './config.js';
 
 /**
  * 检测并清理卸载残留
- * 当插件缓存目录不存在时，自动清理 settings.json 中的 statusLine 配置
+ * 当插件缓存目录不存在或存在 .orphaned_at 标记时，自动清理 settings.json
  */
 function cleanupIfOrphaned(): boolean {
   const configDir = process.env.CLAUDE_CONFIG_DIR || path.join(process.env.HOME || '', '.claude');
   const pluginCacheDir = path.join(configDir, 'plugins', 'cache', 'tencent-coding-plan-hud');
 
   // 检查插件缓存目录是否存在
+  let isOrphaned = false;
+
   if (!fs.existsSync(pluginCacheDir)) {
-    // 插件已被卸载，清理 settings.json 中的 statusLine
+    isOrphaned = true;
+  } else {
+    // 检查是否有 .orphaned_at 标记文件（Claude Code 卸载时创建）
+    // 递归查找插件目录下的 .orphaned_at 文件
+    const findOrphanedMarker = (dir: string): boolean => {
+      try {
+        const entries = fs.readdirSync(dir, { withFileTypes: true });
+        for (const entry of entries) {
+          if (entry.name === '.orphaned_at') {
+            return true;
+          }
+          if (entry.isDirectory()) {
+            if (findOrphanedMarker(path.join(dir, entry.name))) {
+              return true;
+            }
+          }
+        }
+      } catch {
+        // 忽略错误
+      }
+      return false;
+    };
+
+    if (findOrphanedMarker(pluginCacheDir)) {
+      isOrphaned = true;
+    }
+  }
+
+  if (isOrphaned) {
+    // 插件已被卸载，清理 settings.json
     const settingsPath = path.join(configDir, 'settings.json');
 
     if (fs.existsSync(settingsPath)) {
       try {
         const content = fs.readFileSync(settingsPath, 'utf8');
         const settings = JSON.parse(content);
+        let modified = false;
 
-        // 检查 statusLine 是否指向本插件
+        // 清理 statusLine
         if (settings.statusLine?.command?.includes('tencent-coding-plan-hud')) {
           delete settings.statusLine;
+          modified = true;
+        }
+
+        // 清理 extraKnownMarketplaces
+        if (settings.extraKnownMarketplaces?.['tencent-coding-plan-hud']) {
+          delete settings.extraKnownMarketplaces['tencent-coding-plan-hud'];
+          modified = true;
+        }
+
+        // 清理空的 extraKnownMarketplaces
+        if (settings.extraKnownMarketplaces && Object.keys(settings.extraKnownMarketplaces).length === 0) {
+          delete settings.extraKnownMarketplaces;
+          modified = true;
+        }
+
+        if (modified) {
           fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2));
         }
       } catch {
@@ -43,6 +91,15 @@ function cleanupIfOrphaned(): boolean {
     if (fs.existsSync(pluginConfigDir)) {
       try {
         fs.rmSync(pluginConfigDir, { recursive: true });
+      } catch {
+        // 忽略错误
+      }
+    }
+
+    // 清理插件缓存目录
+    if (fs.existsSync(pluginCacheDir)) {
+      try {
+        fs.rmSync(pluginCacheDir, { recursive: true });
       } catch {
         // 忽略错误
       }
