@@ -136,7 +136,7 @@ tencent-coding-plan-hud/
 
 ## 🚀 安装与使用
 
-### 一键安装
+### 第一步：安装插件
 
 在 Claude Code 中运行以下命令：
 
@@ -145,13 +145,33 @@ tencent-coding-plan-hud/
 /plugin install tencent-coding-plan-hud
 ```
 
-安装完成后，运行 `/reload-plugins` 或重启 Claude Code 即可使用。
+安装完成后，运行 `/reload-plugins` 激活插件。
 
 > 💡 插件会在安装时自动构建，无需手动操作。
 
+### 第二步：配置 API 密钥（必须）
+
+**⚠️ 重要：安装后必须执行此步骤，否则插件无法工作！**
+
+```
+/tencent-coding-plan-hud:setup <SecretId> <SecretKey>
+```
+
+示例：
+```
+/tencent-coding-plan-hud:setup AKIDxxxxxxxxxxxxxxxx yyyyyyyyyyyyyyyyyyyyyyyy
+```
+
+此命令会：
+1. 保存 API 密钥到本地配置文件
+2. 编译 TypeScript 源码
+3. 配置 Statusline 使 HUD 持续显示
+
+> 🔄 **完成配置后需要重启 Claude Code** 才能看到 HUD 显示。
+
 ### 验证安装
 
-安装完成后，运行以下命令验证：
+运行以下命令验证：
 
 ```
 /plugin list
@@ -177,20 +197,7 @@ tencent-coding-plan-hud/
 
 ## 📝 使用说明
 
-### 1️⃣ 配置 API 密钥
-
-首次使用需要配置腾讯云 API 密钥：
-
-```
-/tencent-coding-plan-hud:setup <SecretId> <SecretKey>
-```
-
-示例：
-```
-/tencent-coding-plan-hud:setup AKIDxxxxxxxxxxxxxxxx yyyyyyyyyyyyyyyyyyyyyyyy
-```
-
-### 2️⃣ 查询用量
+### 查询用量
 
 ```
 /tencent-coding-plan-hud:query
@@ -224,7 +231,7 @@ tencent-coding-plan-hud/
 ============================================================
 ```
 
-### 3️⃣ 配置显示
+### 配置显示
 
 ```
 /tencent-coding-plan-hud:configure layout=stacked-detailed refresh=5
@@ -234,7 +241,7 @@ tencent-coding-plan-hud/
 
 | 命令 | 说明 |
 |------|------|
-| `/tencent-coding-plan-hud:setup` | 配置 API 密钥 |
+| `/tencent-coding-plan-hud:setup` | 配置 API 密钥（**安装后必须执行**） |
 | `/tencent-coding-plan-hud:query` | 查询当前用量 |
 | `/tencent-coding-plan-hud:configure` | 配置 UI 布局和刷新频率 |
 
