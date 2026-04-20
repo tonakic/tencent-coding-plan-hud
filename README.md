@@ -146,11 +146,7 @@ tencent-coding-plan-hud/
 
 安装完成后，运行 `/reload-plugins` 或重启 Claude Code 即可使用。
 
-> ⚠️ **首次安装后需要构建**：由于本插件使用 TypeScript，首次安装后需要手动构建：
-> ```bash
-> cd ~/.claude/plugins/tencent-coding-plan-hud
-> npm install && npm run build
-> ```
+> 💡 插件会在安装时自动构建，无需手动操作。
 
 ### 验证安装
 
