@@ -1,7 +1,7 @@
 {
   "name": "tencent-coding-plan-hud",
   "description": "腾讯云 CodingPlan 用量监控插件 - 在 Claude Code 中显示 Token 用量信息，支持多种 UI 布局和定时刷新",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "keywords": [
     "tencent",
     "codingplan",

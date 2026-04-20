@@ -12,78 +12,74 @@ import { loadConfig, getHUDConfig } from './config.js';
 
 /**
  * 检测并清理卸载残留
- * 当插件缓存目录不存在或存在 .orphaned_at 标记时，自动清理 settings.json
+ * 核心逻辑：检查 settings.json 中的 enabledPlugins 是否包含本插件
+ * 如果没有，说明插件已被禁用/卸载，执行清理
  */
 function cleanupIfOrphaned(): boolean {
   const configDir = process.env.CLAUDE_CONFIG_DIR || path.join(process.env.HOME || '', '.claude');
-  const pluginCacheDir = path.join(configDir, 'plugins', 'cache', 'tencent-coding-plan-hud');
+  const settingsPath = path.join(configDir, 'settings.json');
 
-  // 检查插件缓存目录是否存在
+  // 检查 settings.json 是否存在
+  if (!fs.existsSync(settingsPath)) {
+    return false;
+  }
+
   let isOrphaned = false;
 
-  if (!fs.existsSync(pluginCacheDir)) {
-    isOrphaned = true;
-  } else {
-    // 检查是否有 .orphaned_at 标记文件（Claude Code 卸载时创建）
-    // 递归查找插件目录下的 .orphaned_at 文件
-    const findOrphanedMarker = (dir: string): boolean => {
-      try {
-        const entries = fs.readdirSync(dir, { withFileTypes: true });
-        for (const entry of entries) {
-          if (entry.name === '.orphaned_at') {
-            return true;
-          }
-          if (entry.isDirectory()) {
-            if (findOrphanedMarker(path.join(dir, entry.name))) {
-              return true;
-            }
-          }
-        }
-      } catch {
-        // 忽略错误
-      }
-      return false;
-    };
+  try {
+    const content = fs.readFileSync(settingsPath, 'utf8');
+    const settings = JSON.parse(content);
 
-    if (findOrphanedMarker(pluginCacheDir)) {
-      isOrphaned = true;
+    // 检查 enabledPlugins 中是否包含本插件
+    // 插件名格式: tencent-coding-plan-hud@tencent-coding-plan-hud
+    const enabledPlugins = settings.enabledPlugins || {};
+    const isPluginEnabled = Object.keys(enabledPlugins).some(
+      key => key.startsWith('tencent-coding-plan-hud@') && enabledPlugins[key] === true
+    );
+
+    // 如果插件不在 enabledPlugins 中，或值为 false，则认为是已卸载
+    if (!isPluginEnabled) {
+      // 检查是否有本插件相关的 statusLine 配置
+      // 如果有，说明用户曾经配置过，现在需要清理
+      if (settings.statusLine?.command?.includes('tencent-coding-plan-hud')) {
+        isOrphaned = true;
+      }
     }
+  } catch {
+    // 解析错误，不做处理
+    return false;
   }
 
   if (isOrphaned) {
-    // 插件已被卸载，清理 settings.json
-    const settingsPath = path.join(configDir, 'settings.json');
+    // 插件已被卸载，执行清理
+    try {
+      const content = fs.readFileSync(settingsPath, 'utf8');
+      const settings = JSON.parse(content);
+      let modified = false;
 
-    if (fs.existsSync(settingsPath)) {
-      try {
-        const content = fs.readFileSync(settingsPath, 'utf8');
-        const settings = JSON.parse(content);
-        let modified = false;
-
-        // 清理 statusLine
-        if (settings.statusLine?.command?.includes('tencent-coding-plan-hud')) {
-          delete settings.statusLine;
-          modified = true;
-        }
-
-        // 清理 extraKnownMarketplaces
-        if (settings.extraKnownMarketplaces?.['tencent-coding-plan-hud']) {
-          delete settings.extraKnownMarketplaces['tencent-coding-plan-hud'];
-          modified = true;
-        }
-
-        // 清理空的 extraKnownMarketplaces
-        if (settings.extraKnownMarketplaces && Object.keys(settings.extraKnownMarketplaces).length === 0) {
-          delete settings.extraKnownMarketplaces;
-          modified = true;
-        }
-
-        if (modified) {
-          fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2));
-        }
-      } catch {
-        // 忽略错误，静默退出
+      // 清理 statusLine
+      if (settings.statusLine?.command?.includes('tencent-coding-plan-hud')) {
+        delete settings.statusLine;
+        modified = true;
       }
+
+      // 清理 extraKnownMarketplaces
+      if (settings.extraKnownMarketplaces?.['tencent-coding-plan-hud']) {
+        delete settings.extraKnownMarketplaces['tencent-coding-plan-hud'];
+        modified = true;
+      }
+
+      // 清理空的 extraKnownMarketplaces
+      if (settings.extraKnownMarketplaces && Object.keys(settings.extraKnownMarketplaces).length === 0) {
+        delete settings.extraKnownMarketplaces;
+        modified = true;
+      }
+
+      if (modified) {
+        fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2));
+      }
+    } catch {
+      // 忽略错误
     }
 
     // 清理配置目录
@@ -97,6 +93,7 @@ function cleanupIfOrphaned(): boolean {
     }
 
     // 清理插件缓存目录
+    const pluginCacheDir = path.join(configDir, 'plugins', 'cache', 'tencent-coding-plan-hud');
     if (fs.existsSync(pluginCacheDir)) {
       try {
         fs.rmSync(pluginCacheDir, { recursive: true });
@@ -105,7 +102,7 @@ function cleanupIfOrphaned(): boolean {
       }
     }
 
-    return true; // 已清理，是孤儿状态
+    return true; // 已清理
   }
 
   return false; // 正常状态

@@ -5,31 +5,39 @@ set -euo pipefail
 
 # 配置文件路径
 CONFIG_FILE="$HOME/.claude/tencent-coding-plan-hud/config.json"
+SETTINGS_FILE="$HOME/.claude/settings.json"
 
 # 检测插件是否已被卸载
-# 条件1: 缓存目录不存在
-# 条件2: 缓存目录存在但存在 .orphaned_at 标记文件（Claude Code 卸载时创建）
-PLUGIN_CACHE_DIR="$HOME/.claude/plugins/cache/tencent-coding-plan-hud"
+# 核心逻辑：检查 settings.json 中的 enabledPlugins 是否包含本插件
 IS_ORPHANED=false
 
-if [[ ! -d "$PLUGIN_CACHE_DIR" ]]; then
-    IS_ORPHANED=true
-else
-    # 检查是否有 .orphaned_at 标记文件（递归查找）
-    if find "$PLUGIN_CACHE_DIR" -name ".orphaned_at" -type f 2>/dev/null | head -1 | grep -q .; then
-        IS_ORPHANED=true
-    fi
+if [[ -f "$SETTINGS_FILE" ]] && command -v node &>/dev/null; then
+    IS_ORPHANED=$(node -e "
+const fs = require('fs');
+try {
+    const settings = JSON.parse(fs.readFileSync('$SETTINGS_FILE', 'utf8'));
+    const enabledPlugins = settings.enabledPlugins || {};
+    // 检查是否有以 tencent-coding-plan-hud@ 开头的启用插件
+    const isEnabled = Object.keys(enabledPlugins).some(
+        key => key.startsWith('tencent-coding-plan-hud@') && enabledPlugins[key] === true
+    );
+    // 如果没有启用，且有 statusLine 配置指向本插件，则需要清理
+    const hasStatusLine = settings.statusLine?.command?.includes('tencent-coding-plan-hud');
+    console.log((!isEnabled && hasStatusLine) ? 'true' : 'false');
+} catch (e) {
+    console.log('false');
+}
+" 2>/dev/null || echo "false")
 fi
 
 if [[ "$IS_ORPHANED" == "true" ]]; then
     # 自动清理残留配置
-    SETTINGS_FILE="$HOME/.claude/settings.json"
     CONFIG_DIR="$HOME/.claude/tencent-coding-plan-hud"
+    PLUGIN_CACHE_DIR="$HOME/.claude/plugins/cache/tencent-coding-plan-hud"
 
     # 清理 settings.json 中的 statusLine 和 extraKnownMarketplaces
-    if [[ -f "$SETTINGS_FILE" ]] && grep -q "tencent-coding-plan-hud" "$SETTINGS_FILE" 2>/dev/null; then
-        if command -v node &>/dev/null; then
-            node -e "
+    if command -v node &>/dev/null; then
+        node -e "
 const fs = require('fs');
 const settingsPath = '$SETTINGS_FILE';
 try {
@@ -59,7 +67,6 @@ try {
     }
 } catch (e) {}
 " 2>/dev/null
-        fi
     fi
 
     # 清理配置目录
@@ -104,8 +111,7 @@ if [[ -z "$SECRET_ID" || -z "$SECRET_KEY" ]]; then
 fi
 
 # 调用 Node.js 脚本获取用量数据
-# 注意：这需要 MCP server 已经构建
-PLUGIN_ROOT="${CLAUDE_PLUGIN_ROOT:-/workspace/projects/tencent-coding-plan-hud}"
+PLUGIN_ROOT="${CLAUDE_PLUGIN_ROOT:-$HOME/.claude/plugins/cache/tencent-coding-plan-hud/tencent-coding-plan-hud/1.0.1}"
 QUERY_SCRIPT="$PLUGIN_ROOT/dist/query-usage.js"
 
 if [[ -f "$QUERY_SCRIPT" ]]; then
