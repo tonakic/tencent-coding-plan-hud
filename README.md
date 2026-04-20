@@ -40,6 +40,7 @@
 | 🚀 **会话自动显示** | 通过 SessionStart Hook 在新会话自动展示用量信息 |
 | 💬 **持续状态栏显示** | 通过 Statusline 功能在输入框下方持续显示用量信息 |
 | 🔐 **安全密钥存储** | API 密钥本地加密存储，权限严格限制 |
+| 🧹 **自动清理卸载** | 卸载后自动清理残留配置，无需手动干预 |
 | 🛠️ **MCP 工具集成** | 提供多个 MCP 工具供 Claude Code 调用 |
 | 📝 **Slash 命令** | 支持 `/setup`、`/query`、`/configure` 快捷命令 |
 
@@ -92,16 +93,16 @@ tencent-coding-plan-hud/
 │   ├── hud.ts               # HUD 显示逻辑
 │   ├── config.ts            # 配置管理
 │   ├── query-usage.ts       # 命令行查询脚本
-│   └── statusline.ts        # Statusline 持续显示脚本
+│   └── statusline.ts        # Statusline 持续显示 + 卸载自动清理
 ├── hooks/
 │   ├── hooks.json           # Hook 配置
-│   ├── session-start.sh     # SessionStart Hook 脚本
+│   ├── session-start.sh     # SessionStart Hook + 卸载自动清理
 │   └── user-prompt-submit.sh # UserPromptSubmit Hook 脚本
 ├── skills/
 │   ├── setup/SKILL.md       # /setup 配置命令
 │   ├── configure/SKILL.md   # /configure 设置命令
 │   └── query/SKILL.md       # /query 查询命令
-├── dist/                    # 编译输出目录
+├── dist/                    # 编译输出目录（自动生成）
 ├── package.json
 ├── tsconfig.json
 └── README.md
