@@ -9,21 +9,33 @@ CONFIG_FILE="$HOME/.claude/tencent-coding-plan-hud/config.json"
 # 检测插件是否已被卸载（缓存目录不存在）
 PLUGIN_CACHE_DIR="$HOME/.claude/plugins/cache/tencent-coding-plan-hud"
 if [[ ! -d "$PLUGIN_CACHE_DIR" ]]; then
-    # 检查 settings.json 中是否有残留的 statusLine 配置
+    # 自动清理残留配置
     SETTINGS_FILE="$HOME/.claude/settings.json"
+    CONFIG_DIR="$HOME/.claude/tencent-coding-plan-hud"
+
+    # 清理 settings.json 中的 statusLine
     if [[ -f "$SETTINGS_FILE" ]] && grep -q "tencent-coding-plan-hud" "$SETTINGS_FILE" 2>/dev/null; then
-        echo ""
-        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-        echo "⚠️  tencent-coding-plan-hud 插件检测到残留配置"
-        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-        echo "插件已被卸载，但 settings.json 中仍有 statusLine 配置。"
-        echo "请运行以下命令清理残留："
-        echo ""
-        echo "  /tencent-coding-plan-hud:uninstall"
-        echo ""
-        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-        echo ""
+        if command -v node &>/dev/null; then
+            node -e "
+const fs = require('fs');
+const path = require('path');
+const settingsPath = '$SETTINGS_FILE';
+try {
+    const settings = JSON.parse(fs.readFileSync(settingsPath, 'utf8'));
+    if (settings.statusLine?.command?.includes('tencent-coding-plan-hud')) {
+        delete settings.statusLine;
+        fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2));
+    }
+} catch (e) {}
+" 2>/dev/null
+        fi
     fi
+
+    # 清理配置目录
+    if [[ -d "$CONFIG_DIR" ]]; then
+        rm -rf "$CONFIG_DIR" 2>/dev/null
+    fi
+
     exit 0
 fi
 

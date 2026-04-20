@@ -4,9 +4,55 @@
  * 通过 stdin 接收 Claude Code 数据，输出 HUD 内容
  */
 
+import * as fs from 'fs';
+import * as path from 'path';
 import { getCodingPlanUsage, type UsageData } from './api.js';
 import { generateHUD } from './hud.js';
 import { loadConfig, getHUDConfig } from './config.js';
+
+/**
+ * 检测并清理卸载残留
+ * 当插件缓存目录不存在时，自动清理 settings.json 中的 statusLine 配置
+ */
+function cleanupIfOrphaned(): boolean {
+  const configDir = process.env.CLAUDE_CONFIG_DIR || path.join(process.env.HOME || '', '.claude');
+  const pluginCacheDir = path.join(configDir, 'plugins', 'cache', 'tencent-coding-plan-hud');
+
+  // 检查插件缓存目录是否存在
+  if (!fs.existsSync(pluginCacheDir)) {
+    // 插件已被卸载，清理 settings.json 中的 statusLine
+    const settingsPath = path.join(configDir, 'settings.json');
+
+    if (fs.existsSync(settingsPath)) {
+      try {
+        const content = fs.readFileSync(settingsPath, 'utf8');
+        const settings = JSON.parse(content);
+
+        // 检查 statusLine 是否指向本插件
+        if (settings.statusLine?.command?.includes('tencent-coding-plan-hud')) {
+          delete settings.statusLine;
+          fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2));
+        }
+      } catch {
+        // 忽略错误，静默退出
+      }
+    }
+
+    // 清理配置目录
+    const pluginConfigDir = path.join(configDir, 'tencent-coding-plan-hud');
+    if (fs.existsSync(pluginConfigDir)) {
+      try {
+        fs.rmSync(pluginConfigDir, { recursive: true });
+      } catch {
+        // 忽略错误
+      }
+    }
+
+    return true; // 已清理，是孤儿状态
+  }
+
+  return false; // 正常状态
+}
 
 // Claude Code stdin 数据类型
 interface StdinData {
@@ -125,6 +171,12 @@ async function getUsageData(config: { secretId: string; secretKey: string; refre
  * 主函数
  */
 async function main() {
+  // 检测是否已被卸载，如果是则自动清理残留并退出
+  if (cleanupIfOrphaned()) {
+    // 插件已被卸载，静默退出（不输出任何内容）
+    return;
+  }
+
   const config = loadConfig();
 
   // 未配置时显示提示
