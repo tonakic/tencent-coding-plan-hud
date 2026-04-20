@@ -159,8 +159,11 @@ async function main() {
     }
   }
 
+  // 提取模型信息（如果可用）
+  const modelId = stdin?.model?.id;
+
   // 生成并输出 HUD
-  const hud = generateHUD(usageData, hudConfig, contextUsage);
+  const hud = generateHUD(usageData, hudConfig, contextUsage, modelId);
   console.log(hud);
 }
 

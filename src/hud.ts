@@ -21,6 +21,28 @@ export const DEFAULT_HUD_CONFIG: HUDConfig = {
 };
 
 // 颜色代码
+
+/**
+ * 将模型 ID 转换为简短名称
+ * claude-sonnet-4-6 -> Sonnet 4.6
+ * claude-opus-4-7 -> Opus 4.7
+ * claude-haiku-4-5 -> Haiku 4.5
+ */
+export function getShortModelName(modelId: string | undefined): string | null {
+  if (!modelId) return null;
+
+  // 匹配 claude-{family}-{major}-{minor} 格式
+  const match = modelId.match(/^claude-(\w+)-(\d+)-(\d+)$/);
+  if (match) {
+    const family = match[1].charAt(0).toUpperCase() + match[1].slice(1);
+    const major = match[2];
+    const minor = match[3];
+    return `${family} ${major}.${minor}`;
+  }
+
+  // 其他格式直接返回原始 ID
+  return modelId;
+}
 const COLORS = {
   green: '\x1b[32m',
   orange: '\x1b[33m',
@@ -76,7 +98,8 @@ function formatUsage(name: string, usage: PeriodUsage, detailed: boolean): strin
 export function generateHUD(
   usageData: UsageData,
   config: HUDConfig = DEFAULT_HUD_CONFIG,
-  contextUsage?: { used: number; total: number }
+  contextUsage?: { used: number; total: number },
+  modelName?: string
 ): string {
   if (!usageData.success || !usageData.data) {
     return `API未配置或者已失效过期，请输入/tencent-coding-plan-hud:setup配置。`;
@@ -94,6 +117,10 @@ export function generateHUD(
 
   const detailed = config.layout.includes('detailed');
   const stacked = config.layout.includes('stacked');
+
+  // 模型名称
+  const shortModelName = getShortModelName(modelName);
+  const modelStr = shortModelName ? `🤖 ${shortModelName}` : '';
 
   // 上下文用量（如果提供）
   let contextStr = '';
@@ -121,6 +148,7 @@ export function generateHUD(
   if (stacked) {
     // 堆叠布局
     const lines: string[] = [];
+    if (modelStr) lines.push(modelStr);
     if (contextStr) lines.push(contextStr);
     lines.push(fiveHourStr);
     lines.push(weekStr);
@@ -131,6 +159,7 @@ export function generateHUD(
   } else {
     // 展开布局
     const parts: string[] = [];
+    if (modelStr) parts.push(modelStr);
     if (contextStr) parts.push(contextStr);
     parts.push(fiveHourStr);
     parts.push(weekStr);
@@ -144,14 +173,24 @@ export function generateHUD(
 /**
  * 格式化用量详情（用于查询结果显示）
  */
-export function formatUsageDetail(usageData: UsageData): string {
+export function formatUsageDetail(usageData: UsageData, modelName?: string): string {
   if (!usageData.success || !usageData.data) {
     return `❌ ${usageData.error || '获取用量失败'}`;
   }
 
   const data = usageData.data;
+  const shortModelName = getShortModelName(modelName);
+  const modelLine = shortModelName ? `🤖 当前模型: ${shortModelName}` : '';
+
   const lines: string[] = [
     `\n${'='.repeat(60)}`,
+  ];
+
+  if (modelLine) {
+    lines.push(modelLine);
+  }
+
+  lines.push(
     `📦 套餐: ${data.pkgName} (${data.pkgType})`,
     `💰 价格: ¥${data.price}/月`,
     `📊 状态: ${data.status}`,
@@ -177,7 +216,7 @@ export function formatUsageDetail(usageData: UsageData): string {
     `   使用率: ${data.perMonth.UsagePercent.toFixed(2)}%`,
     `   剩余: ${formatNumber(data.perMonth.Total - data.perMonth.Used)} tokens`,
     `${'='.repeat(60)}`,
-  ];
+  );
 
   return lines.join('\n');
 }

@@ -78,6 +78,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
           contextUsed: { type: 'number', description: '上下文已用 token 数' },
           contextTotal: { type: 'number', description: '上下文总 token 数' },
           layout: { type: 'string', description: 'UI 布局' },
+          modelName: { type: 'string', description: '当前使用的模型 ID' },
         },
       },
     },
@@ -138,6 +139,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         const contextUsed = arguments_.contextUsed as number | undefined;
         const contextTotal = arguments_.contextTotal as number | undefined;
         const layoutOverride = arguments_.layout as UILayout | undefined;
+        const modelName = arguments_.modelName as string | undefined;
 
         if (layoutOverride) {
           hudConfig.layout = layoutOverride;
@@ -147,7 +149,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           ? { used: contextUsed, total: contextTotal }
           : undefined;
 
-        const hud = generateHUD(usageData, hudConfig, contextUsage);
+        const hud = generateHUD(usageData, hudConfig, contextUsage, modelName);
         return {
           content: [{ type: 'text', text: hud }],
         };

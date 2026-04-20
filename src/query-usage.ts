@@ -18,7 +18,8 @@ async function main() {
 
   const hudConfig = getHUDConfig(config);
   const usageData = await getCodingPlanUsage(config.secretId, config.secretKey);
-  const hud = generateHUD(usageData, hudConfig);
+  // hooks 调用时无模型信息，传 undefined
+  const hud = generateHUD(usageData, hudConfig, undefined, undefined);
 
   console.log(hud);
 }
